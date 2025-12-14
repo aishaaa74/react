@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { createContext, useState } from "react";
 import BookList from "./components/BookList.jsx";
 import BookDetail from "./components/BookDetail.jsx";
+import CreateBook from "./components/CreateBook.jsx";
+import EditBook from "./components/EditBook.jsx";
+import Header from "./components/Header.jsx";
+import Footer from "./components/Footer.jsx";
 import "./index.css";
 
-export default function App() {
-  const [selectedBook, setSelectedBook] = useState(null);
 
- const books = [
+export default function App() {
+ const [books, setBooks] = useState([
   {
     id: 1,
     title: "451° по Фаренгейту",
@@ -55,20 +58,90 @@ export default function App() {
     cover_url: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1694843590i/99777612.jpg",
     read_url: "https://readli.net/smert-v-oblakah/"  // Полный текст на Readli (бесплатно)
   }
-];
+]);
+
+const [selectedBook, setSelectedBook] = useState(null);
+const [mode, setMode] = useState("list");
+
+const addBook = (newBook) => {
+  const bookWithId = { ...newBook, id: Date.now() };
+  setBooks([...books, bookWithId]);
+  setMode("list");
+};
+
+
+const updateBook = (updatedBook) => {
+    setBooks(books.map(book => 
+      book.id === updatedBook.id ? updatedBook : book
+    ));
+    setMode("list");
+    setSelectedBook(null);
+  };
+
+const deleteBook = (id) => {
+  setBooks(books.filter(book => book.id !== id));
+  setSelectedBook(null);
+  setMode("list");
+};
+
 
   return (
-    <div className="container">
+    <> 
+    <Header />
+
+    <main className="container">
       <header>
         <h1>Библиотека шедевров</h1>
         <p>Выберите книгу и погрузитесь в чтение</p>
       </header>
 
-      {selectedBook ? (
-        <BookDetail book={selectedBook} onBack={() => setSelectedBook(null)} />
-      ) : (
-        <BookList books={books} onSelect={setSelectedBook} />
+      {mode === "create" && (
+                <CreateBook onAdd = {addBook} onCancel={() => setMode("list")} />
       )}
-    </div>
+
+      {mode === "edit" && selectedBook && (
+                <EditBook book={selectedBook} onUpdate={updateBook} onCancel={() => setMode("list")} />
+      )}
+
+      {mode === "list" && !selectedBook && (
+        <>
+        <div style={{ textAlign: "right", marginBottom: "2rem" }}>
+              <button
+                onClick={() => setMode("create")}
+                style={{
+                  padding: "1rem 2rem",
+                  fontSize: "1.2rem",
+                  background: "#7c3aed",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "16px",
+                  cursor: "pointer",
+                  boxShadow: "0 8px 20px rgba(124, 58, 237, 0.4)",
+                  transition: "all 0.3s ease"
+                }}
+                onMouseOver={e => e.target.style.transform = "translateY(-4px)"}
+                onMouseOut={e => e.target.style.transform = "translateY(0)"}
+              >
+                ➕ Добавить новую книгу
+              </button>
+            </div>
+            <BookList books={books} onSelect={setSelectedBook} />
+            </>
+      )}
+
+     {selectedBook && mode === "list" && (
+          <BookDetail
+            book={selectedBook}
+            onBack={() => setSelectedBook(null)}
+            onEdit={() => setMode("edit")}  // ← переходим в режим редактирования
+            onDelete={() => deleteBook(selectedBook.id)}  // ← сразу удаляем
+          />
+      )}
+      
+
+    </main>
+
+    <Footer />
+    </>
   );
 }
