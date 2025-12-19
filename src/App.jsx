@@ -1,11 +1,16 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import BookList from "./components/BookList.jsx";
 import BookDetail from "./components/BookDetail.jsx";
 import CreateBook from "./components/CreateBook.jsx";
 import EditBook from "./components/EditBook.jsx";
 import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
+import Login from "./components/Login.jsx";
+import Registration from "./components/Registration.jsx";
+import Profile from "./components/Profile.jsx";
 import "./index.css";
+
+
 
 
 export default function App() {
@@ -60,6 +65,12 @@ export default function App() {
   }
 ]);
 
+
+
+
+const [currentUser, setCurrentUser] = useState(null);
+const [authMode, setAuthMode] = useState("list");
+
 const [selectedBook, setSelectedBook] = useState(null);
 const [mode, setMode] = useState("list");
 
@@ -85,63 +96,99 @@ const deleteBook = (id) => {
 };
 
 
-  return (
-    <> 
-    <Header />
+useEffect(() => {
+  const savedUser = localStorage.getItem("currentUser");
+  if (savedUser) {
+    setCurrentUser(JSON.parse(savedUser));
+  }
+}, []);
+
+//функция для входа
+const login = (userData) => {
+  setCurrentUser(userData);
+  localStorage.setItem("currentUser", JSON.stringify(userData));
+  setAuthMode("list");
+}
+
+//создания пользователя
+const register = (userData) => {
+  setCurrentUser(userData);
+  localStorage.setItem("currentUser", JSON.stringify(userData));
+  setAuthMode("list");
+}
+//выход
+const logout = () => {
+  setCurrentUser(null);
+  localStorage.removeItem("currentUser");
+  setAuthMode("list");
+}
+
+return (
+  <>
+    <Header
+      currentUser={currentUser}
+      onLogin={() => setAuthMode("login")}
+      onRegister={() => setAuthMode("registration")}
+      onProfile={() => setAuthMode("profile")}
+      onLogout={logout}
+    />
 
     <main className="container">
-      <header>
-        <h1>Библиотека шедевров</h1>
-        <p>Выберите книгу и погрузитесь в чтение</p>
-      </header>
-
-      {mode === "create" && (
-                <CreateBook onAdd = {addBook} onCancel={() => setMode("list")} />
+      {authMode === "login" && (
+        <Login onLogin={login} onSwitch={() => setAuthMode("registration")} />
+      )}
+      {authMode === "registration" && (
+        <Registration onRegister={register} onSwitch={() => setAuthMode("login")} />
+      )}
+      {authMode === "profile" && currentUser && (
+        <Profile user={currentUser} onBack={() => setAuthMode("list")} />
       )}
 
-      {mode === "edit" && selectedBook && (
-                <EditBook book={selectedBook} onUpdate={updateBook} onCancel={() => setMode("list")} />
-      )}
 
-      {mode === "list" && !selectedBook && (
+      {authMode === "list" && (
         <>
-        <div style={{ textAlign: "right", marginBottom: "2rem" }}>
-              <button
-                onClick={() => setMode("create")}
-                style={{
-                  padding: "1rem 2rem",
-                  fontSize: "1.2rem",
-                  background: "#7c3aed",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "16px",
-                  cursor: "pointer",
-                  boxShadow: "0 8px 20px rgba(124, 58, 237, 0.4)",
-                  transition: "all 0.3s ease"
-                }}
-                onMouseOver={e => e.target.style.transform = "translateY(-4px)"}
-                onMouseOut={e => e.target.style.transform = "translateY(0)"}
-              >
-                ➕ Добавить новую книгу
-              </button>
-            </div>
-            <BookList books={books} onSelect={setSelectedBook} />
+          <header className="head1">
+            <h1>Библиотека шедевров</h1>
+            <p>Выберите книгу и погрузитесь в чтение</p>
+          </header>
+
+          {mode === "create" && (
+            <CreateBook onAdd={addBook} onCancel={() => setMode("list")} />
+          )}
+
+          {mode === "edit" && selectedBook && (
+            <EditBook book={selectedBook} onUpdate={updateBook} onCancel={() => setMode("list")} />
+          )}
+
+          {mode === "list" && !selectedBook && (
+            <>
+              <div style={{ textAlign: "right", marginBottom: "2rem" }}>
+                <button
+                  onClick={() => setMode("create")}
+                  // стили кнопки
+                >
+                  ➕ Добавить новую книгу
+                </button>
+              </div>
+              <BookList books={books} onSelect={setSelectedBook} />
             </>
-      )}
+          )}
 
-     {selectedBook && mode === "list" && (
-          <BookDetail
-            book={selectedBook}
-            onBack={() => setSelectedBook(null)}
-            onEdit={() => setMode("edit")}  // ← переходим в режим редактирования
-            onDelete={() => deleteBook(selectedBook.id)}  // ← сразу удаляем
-          />
+          {selectedBook && mode === "list" && (
+            <BookDetail
+              book={selectedBook}
+              onBack={() => setSelectedBook(null)}
+              onEdit={() => setMode("edit")}
+              onDelete={() => deleteBook(selectedBook.id)}
+            />
+          )}
+        </>
       )}
-      
-
     </main>
 
     <Footer />
-    </>
-  );
+  </>
+);
+ 
+  
 }

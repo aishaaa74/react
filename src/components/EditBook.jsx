@@ -1,6 +1,6 @@
 // src/components/EditBook.jsx
 import React, { useState } from "react";
-import "./Form.css";
+import "../Form.css";
 
 export default function EditBook({ book, onUpdate, onCancel }) {
   const [title, setTitle] = useState(book.title);

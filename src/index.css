@@ -71,6 +71,7 @@ header h1{
   color: #e0aaff;
 }
 
+
 .menu a {
   font-size: 1.1rem;
   color: #cbd5e1;
@@ -99,5 +100,69 @@ header h1{
 
 h5{
   padding: 20px;
+}
+
+.auth-block {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.greeting {
+  color: #cbd5e1;
+  font-size: 1rem;
+}
+.auth-button{
+  padding: 0.6rem 1.4rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.login-btn {
+  background: transparent;
+  color: #cbd5e1;
+  border-color: #7c3aed;
+}
+
+.login-btn:hover {
+  background: #7c3aed;
+  color: white;
+}
+
+.register-btn {
+  background: #7c3aed;
+  color: white;
+  border-color: #7c3aed;
+}
+
+.register-btn:hover {
+  background: #6d28d9;
+  transform: translateY(-2px);
+}
+
+.profile-btn {
+  background: transparent;
+  color: #cbd5e1;
+  border-color: #a78bfa;
+}
+
+.profile-btn:hover {
+  background: #a78bfa;
+  color: white;
+}
+
+.logout-btn {
+  background: transparent;
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.logout-btn:hover {
+  background: #ef4444;
+  color: white;
 }
 
